@@ -81,33 +81,6 @@ jobs:
           echo ::set-output name=artifact-name::${ARTIFACT_NAME}
 
 
-      - name: Build debug images (west build)
-        run: west build -s zmk/app -p -b ${{ matrix.board }} -- ${{ steps.variables.outputs.shield-arg }}
-          -DZMK_CONFIG="${GITHUB_WORKSPACE}/config" -DCONFIG_ZMK_USB_LOGGING=y
-      - name: Generated zephyr DTS file
-        if: always()
-        run: cat -n build/zephyr/zephyr.dts
-      - name: Generated config file
-        if: always()
-        run: cat -n build/zephyr/include/generated/autoconf.h
-      - name: Rename artifacts
-        run: |
-          mkdir build/artifacts
-          if [ -f build/zephyr/zmk.uf2 ]
-          then
-            cp build/zephyr/zmk.uf2 "build/artifacts/${{ steps.variables.outputs.artifact-name }}-debug.uf2"
-          elif [ -f build/zephyr/zmk.hex ]
-          then
-            cp build/zephyr/zmk.hex "build/artifacts/${{ steps.variables.outputs.artifact-name }}-debug.hex"
-          fi
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.variables.outputs.artifact-name }}-debug
-          path: build/artifacts
-        continue-on-error: true
-
-
       - name: Build release images (west build)
         run: west build -s zmk/app -p -b ${{ matrix.board }} -- ${{ steps.variables.outputs.shield-arg }}
           -DZMK_CONFIG="${GITHUB_WORKSPACE}/config"
